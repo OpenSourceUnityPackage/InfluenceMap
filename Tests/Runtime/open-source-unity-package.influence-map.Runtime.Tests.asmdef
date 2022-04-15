@@ -1,7 +1,7 @@
 {
-  "name": "[YourCompany].[YourPackageName].Tests",
+  "name": "open-source-unity-package.influence-map.Tests",
   "references": [
-    "[YourCompany].[YourPackageName].Runtime"
+    "open-source-unity-package.influence-map.Runtime"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"

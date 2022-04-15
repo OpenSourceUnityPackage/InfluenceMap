@@ -1,17 +1,17 @@
 {
-  "name": "[YourCompany].[YourPackageName]",
-  "displayName": "[YourPackageDisplayName]",
+  "name": "open-source-unity-package.influence-map",
+  "displayName": "InfluenceMap",
   "description": "",
   "version": "0.0.0",
   "unity": "2020.3",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+[YourHTTPSGit]"
+    "url": "git+https://github.com/OpenSourceUnityPackage/InfluenceMap.git"
   },
   "author": {
-    "name": "[YourAuthorName]",
-    "url": ""
+    "name": "OpenSourceUnityPackage",
+    "url": "https://github.com/OpenSourceUnityPackage"
   },
   "dependencies": {},
   "keywords": [

@@ -1,0 +1,10 @@
+{
+	"name": "open-source-unity-package.influence-map.Editor",
+	"references": [
+		"open-source-unity-package.influence-map.Runtime"
+	],
+	"includePlatforms": [
+		"Editor"
+	],
+	"excludePlatforms": []
+}
