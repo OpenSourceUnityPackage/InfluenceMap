@@ -60,6 +60,8 @@ namespace InfluenceMapPackage
         private Material m_debugMaterial;
 #endif
 
+        public IInfluencer[] Influencers => m_influencers.ToArray();
+        
         public RenderTexture RenderTexture { get => m_renderTexture; }
 
         #region MonoBehaviour
