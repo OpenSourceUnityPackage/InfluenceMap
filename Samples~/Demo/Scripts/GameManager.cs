@@ -235,33 +235,18 @@ public class GameManager : MonoBehaviour
         Vector2 rst = Vector2.zero;
         float pixelCount = 0;
 
+        // transform mouse screen space to world space
         Vector3 mousePos1 = m_camera.ScreenToWorldPoint(pos1);
         Vector3 mousePos2 = m_camera.ScreenToWorldPoint(pos2);
 
         Vector2 minMousePos = new Vector2(Math.Min(mousePos1.x, mousePos2.x), Math.Min(mousePos1.z, mousePos2.z));
         Vector2 maxMousePos = new Vector2(Math.Max(mousePos1.x, mousePos2.x), Math.Max(mousePos1.z, mousePos2.z));
+        Rect worldRect = Rect.MinMaxRect(minMousePos.x, minMousePos.y, maxMousePos.x, maxMousePos.y);
 
         for (var index = 0; index < terrains.Length; index++)
         {
-            int resolution = InfluenceMapTeam1[index].Resolution;
-            Vector3 terrainPos = terrains[index].GetPosition();
-            Vector2 terrain2DPos = new Vector2(terrainPos.x, terrainPos.z);
-            
-            Vector2 localMin2D = (minMousePos - terrain2DPos) / terrains[index].terrainData.size.x * resolution;
-            Vector2 localMax2D = (maxMousePos - terrain2DPos) / terrains[index].terrainData.size.x * resolution;
-
-            float xMin = Mathf.Ceil(Mathf.Clamp(localMin2D.x, 0f, resolution));
-            float yMin = Mathf.Ceil(Mathf.Clamp(localMin2D.y, 0f, resolution));
-            float xMax = Mathf.Ceil(Mathf.Clamp(localMax2D.x, 0f, resolution));
-            float yMax = Mathf.Ceil(Mathf.Clamp(localMax2D.y, 0f, resolution));
-
-            Rect localRect = new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
-            
-            if ((int)localRect.width * (int)localRect.height == 0)
-                continue;
-
-            Color[] colors1 = InfluenceMapTeam1[index].GetDatas(localRect);
-            Color[] colors2 = InfluenceMapTeam2[index].GetDatas(localRect);
+            Color[] colors1 = InfluenceMapTeam1[index].GetDatasInWorld(worldRect);
+            Color[] colors2 = InfluenceMapTeam2[index].GetDatasInWorld(worldRect);
 
             if (colors1 == null || colors2 == null || colors1.Length != colors2.Length)
                 continue;

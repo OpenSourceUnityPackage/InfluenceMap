@@ -170,15 +170,34 @@ namespace InfluenceMapPackage
 
         Rect RemapTerrainRectToLocalRect(in Rect worldRect)
         {
-            Rect locRect = new Rect();
-            locRect.position = worldRect.position - Position;
-            locRect.size = worldRect.size / Resolution;
-            return locRect;
+            int resolution = Resolution;
+            Vector3 terrainPos = m_terrain.GetPosition();
+            Vector2 terrain2DPos = new Vector2(terrainPos.x, terrainPos.z);
+
+            TerrainData terrainData = m_terrain.terrainData;
+            Vector2 localMin2D = (worldRect.min - terrain2DPos) / terrainData.size.x * resolution;
+            Vector2 localMax2D = (worldRect.max - terrain2DPos) / terrainData.size.x * resolution;
+
+            float xMin = Mathf.Ceil(Mathf.Clamp(localMin2D.x, 0f, resolution));
+            float yMin = Mathf.Ceil(Mathf.Clamp(localMin2D.y, 0f, resolution));
+            float xMax = Mathf.Ceil(Mathf.Clamp(localMax2D.x, 0f, resolution));
+            float yMax = Mathf.Ceil(Mathf.Clamp(localMax2D.y, 0f, resolution));
+
+            Rect localRect = new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+            return localRect;
         }
         
+        /// <summary>
+        /// Get pixel based on world rect in x, z coord
+        /// </summary>
+        /// <param name="worldRect"></param>
+        /// <returns>2D Rect based on x, z coord of the world world</returns>
         public Color[] GetDatasInWorld(in Rect worldRect)
         {
-            return GetDatas(RemapTerrainRectToLocalRect(worldRect));
+            Rect localRect = RemapTerrainRectToLocalRect(worldRect);
+            if ((int)localRect.height * (int)localRect.width == 0)
+                return null;
+            return GetDatas(localRect);
         }
 
         private void GenerateRenderTexture()
