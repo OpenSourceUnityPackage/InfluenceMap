@@ -1,3 +1,11 @@
+# [1.2.0](https://github.com/OpenSourceUnityPackage/InfluenceMap/compare/1.1.0...1.2.0) (2022-04-27)
+
+
+### Features
+
+* add function to get data based on world rect ([8f136a4](https://github.com/OpenSourceUnityPackage/InfluenceMap/commit/8f136a4a1b8d26e1eb193453024a8836568def50))
+* add selection of influence ([52d8b07](https://github.com/OpenSourceUnityPackage/InfluenceMap/commit/52d8b0726ac8d22b2b39e19b3d9fc69e7fab2edf))
+
 # [1.1.0](https://github.com/OpenSourceUnityPackage/InfluenceMap/compare/1.0.0...1.1.0) (2022-04-25)
 
 
