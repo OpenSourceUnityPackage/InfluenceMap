@@ -5,6 +5,7 @@ using UnityEditor;
 
 #endif
 
+[RequireComponent(typeof(Camera))]
 public class TopCamera : MonoBehaviour
 {
     [SerializeField] private int MoveSpeed = 20;
@@ -16,19 +17,29 @@ public class TopCamera : MonoBehaviour
     Action<float> OnMoveHorizontal;
     Action<float> OnMoveVertical;
 
+    private Camera m_camera;
+
     Vector3 Move = Vector3.zero;
 
     private void Start()
     {
+        m_camera = GetComponent<Camera>();
+        
         OnMouseScroll += (float value) =>
         {
             if (value < 0f && transform.position.y < MaxHeight)
             {
-                Move.y += ZoomSpeed * Time.deltaTime;
+                if (m_camera.orthographic)
+                    m_camera.orthographicSize += ZoomSpeed * Time.deltaTime;
+                else
+                    Move.y += ZoomSpeed * Time.deltaTime;
             }
             else if (value > 0f && transform.position.y > MinHeight)
             {
-                Move.y -= ZoomSpeed * Time.deltaTime;
+                if (m_camera.orthographic)
+                    m_camera.orthographicSize -= ZoomSpeed * Time.deltaTime;
+                else
+                    Move.y -= ZoomSpeed * Time.deltaTime;
             }
         };
 

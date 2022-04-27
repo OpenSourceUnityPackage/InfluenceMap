@@ -12,13 +12,15 @@ public enum ETeam : int
 
 public class GameManager : MonoBehaviour
 {
-    public Camera camera;
+    public Camera m_camera;
     private List<Unit>[] m_teamsUnits = new List<Unit>[(int) ETeam.TeamCount];
     private bool m_isSelecting;
 
     public Terrain[] terrains;
     public TerrainInfluenceMap[] InfluenceMapTeam1;
     public TerrainInfluenceMap[] InfluenceMapTeam2;
+
+    private Selection m_selection = new Selection();
 
 #if UNITY_EDITOR
     private static readonly int s_shaderPropertyInfluenceMap1 = Shader.PropertyToID("_InfluenceMap1");
@@ -81,6 +83,22 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // Selection
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (!m_isSelecting)
+            {
+                m_selection.OnSelectionBegin(Input.mousePosition);
+                m_isSelecting = true;
+            }
+        }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            m_isSelecting = false;
+        }
+
         // Influence map
 #if UNITY_EDITOR
         if (m_prevDrawDebug != m_drawDebug)
@@ -94,7 +112,6 @@ public class GameManager : MonoBehaviour
                     var terrain = terrains[index];
                     m_prevTerrainMaterial[index] = terrain.materialTemplate;
                     terrain.materialTemplate = new Material(Shader.Find("InfluenceMapMerger"));
-                    ;
                 }
             }
             else
@@ -121,9 +138,11 @@ public class GameManager : MonoBehaviour
 
     void OnGUI()
     {
+        // Influence map
         Vector2[] stats = GetStats();
 
         GUILayout.BeginVertical("box");
+        GUILayout.Label("Global");
         for (var index = 0; index < stats.Length; index++)
         {
             var stat = stats[index];
@@ -135,7 +154,28 @@ public class GameManager : MonoBehaviour
 
             GUILayout.EndHorizontal();
         }
+
         GUILayout.EndVertical();
+
+        // Selection
+        if (m_isSelecting)
+        {
+            m_selection.DrawGUI(Input.mousePosition);
+
+            Vector2 selectionStats = GetSelectionStat(m_selection.GetFirstPos(), Input.mousePosition);
+
+            GUILayout.BeginVertical("box");
+            GUILayout.Label("Selection");
+
+            GUILayout.BeginHorizontal("box");
+            
+            GUILayout.Label($"Red : {selectionStats.x * 100f}%");
+            GUILayout.Label($"Green : {selectionStats.y * 100f}%");
+
+            GUILayout.EndHorizontal();
+
+            GUILayout.EndVertical();
+        }
     }
     #endregion
 
@@ -153,11 +193,11 @@ public class GameManager : MonoBehaviour
             int width = Math.Min(width1, width2);
             int height = Math.Min(height1, height2);
 
-            float widthStep1 = width1 / (float)width;
-            float heightStep1 = height1 / (float)height;
-            float widthStep2 = width2 / (float)width;
-            float heightStep2 = height2 / (float)height;
-            
+            float widthStep1 = width1 / (float) width;
+            float heightStep1 = height1 / (float) height;
+            float widthStep2 = width2 / (float) width;
+            float heightStep2 = height2 / (float) height;
+
             Color[] colors1 = InfluenceMapTeam1[index].GetDatas();
             Color[] colors2 = InfluenceMapTeam2[index].GetDatas();
 
@@ -165,19 +205,75 @@ public class GameManager : MonoBehaviour
             {
                 for (int y = 0; y < height; y++)
                 {
-                    float i1 = colors1[(int)(x * widthStep1 + y * heightStep1 * width1)].r;
-                    float i2 = colors2[(int)(x * widthStep2 + y * heightStep2 * width2)].r;
-                    
+                    float i1 = colors1[(int) (x * widthStep1 + y * heightStep1 * width1)].r;
+                    float i2 = colors2[(int) (x * widthStep2 + y * heightStep2 * width2)].r;
+
                     rst[index].x += (i1 >= i2) ? i1 : 0;
                     rst[index].y += (i2 > i1) ? i2 : 0;
-                }                
+                }
             }
 
-            rst[index].y /= width * height;
-            rst[index].x /= width * height;
+            rst[index] /= width * height;
         }
 
         return rst;
+    }
+
+    public List<RenderTexture> renderTexture;
+    
+    Vector2 GetSelectionStat(Vector2 pos1, Vector2 pos2)
+    {
+        Vector2 rst = Vector2.zero;
+        float pixelCount = 0;
+
+        Vector3 mousePos1 = m_camera.ScreenToWorldPoint(pos1);
+        Vector3 mousePos2 = m_camera.ScreenToWorldPoint(pos2);
+
+        Vector2 minMousePos = new Vector2(Math.Min(mousePos1.x, mousePos2.x), Math.Min(mousePos1.z, mousePos2.z));
+        Vector2 maxMousePos = new Vector2(Math.Max(mousePos1.x, mousePos2.x), Math.Max(mousePos1.z, mousePos2.z));
+
+        renderTexture.Clear();
+        for (var index = 0; index < terrains.Length; index++)
+        {
+            renderTexture.Add(InfluenceMapTeam1[index].RenderTexture);
+            renderTexture.Add(InfluenceMapTeam2[index].RenderTexture);
+                
+            int resolution = InfluenceMapTeam1[index].Resolution;
+            Vector3 terrainPos = terrains[index].GetPosition();
+            Vector2 terrain2DPos = new Vector2(terrainPos.x, terrainPos.z);
+            
+            Vector2 localMin2D = (minMousePos - terrain2DPos) / terrains[index].terrainData.size.x * resolution;
+            Vector2 localMax2D = (maxMousePos - terrain2DPos) / terrains[index].terrainData.size.x * resolution;
+
+            float xMin = Mathf.Ceil(Mathf.Clamp(localMin2D.x, 0f, resolution));
+            float yMin = Mathf.Ceil(Mathf.Clamp(localMin2D.y, 0f, resolution));
+            float xMax = Mathf.Ceil(Mathf.Clamp(localMax2D.x, 0f, resolution));
+            float yMax = Mathf.Ceil(Mathf.Clamp(localMax2D.y, 0f, resolution));
+
+            Rect localRect = new Rect(xMin, yMin, xMax - xMin, yMax - yMin);
+            
+            if ((int)localRect.width * (int)localRect.height == 0)
+                continue;
+
+            Color[] colors1 = InfluenceMapTeam1[index].GetDatas(localRect);
+            Color[] colors2 = InfluenceMapTeam2[index].GetDatas(localRect);
+
+            if (colors1 == null || colors2 == null || colors1.Length != colors2.Length)
+                continue;
+
+            for (int i = 0; i < colors1.Length; i++)
+            {
+                float i1 = colors1[i].r;
+                float i2 = colors2[i].r;
+                
+                rst.x += (i1 >= i2) ? i1 : 0;
+                rst.y += (i2 > i1) ? i2 : 0;
+            }
+
+            pixelCount += colors1.Length;
+        }
+
+        return pixelCount > 0 ? rst / pixelCount : Vector2.zero;
     }
 
     /// <summary>

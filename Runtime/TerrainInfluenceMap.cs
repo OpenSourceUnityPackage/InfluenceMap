@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Unity.Profiling;
 using UnityEditor;
+using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
@@ -27,6 +28,14 @@ namespace InfluenceMapPackage
             {
                 resolution = value;
                 GenerateRenderTexture();
+            }
+        }
+        
+        public Vector2 Position
+        {
+            get
+            {
+                return new Vector2(m_terrain.GetPosition().x, m_terrain.GetPosition().z);
             }
         }
         public bool lowPrescision = true;
@@ -133,24 +142,44 @@ namespace InfluenceMapPackage
         }
 #endregion
 
-        public Color[] GetDatas()
+        public Color[] GetDatas(Rect localRect)
         {
-            return GetDatas(0, 0, m_renderTexture.width, m_renderTexture.height);
-        }
+            Assert.IsFalse(localRect.xMin < 0 || localRect.yMin < 0 || localRect.xMin > m_renderTexture.width ||
+                           localRect.yMin > m_renderTexture.height ||
+                           localRect.width < 0 || localRect.height < 0 || localRect.width > m_renderTexture.width ||
+                           localRect.height > m_renderTexture.height ||
+                           (int) localRect.height * (int) localRect.width == 0);
+            
+            Texture2D texture = new Texture2D((int)localRect.width, (int)localRect.height, lowPrescision ? TextureFormat.R8 : TextureFormat.R16, false);
 
-        public Color[] GetDatas(int x, int y, int width, int height)
-        {
-            Texture2D texture = new Texture2D(width, height, lowPrescision ? TextureFormat.R8 : TextureFormat.R16, false);
-            Rect rectReadPicture = new Rect(0, 0, width, height);
-         
             RenderTexture.active = m_renderTexture;
-         
+                 
             // Read pixels
-            texture.ReadPixels(rectReadPicture, 0, 0);
+            localRect.y = m_renderTexture.height - localRect.y - localRect.height; // renderTexture is vertical flipped
+            texture.ReadPixels(localRect, 0, 0);
             texture.Apply();
-         
+                 
             RenderTexture.active = null; // added to avoid errors
             return texture.GetPixels();
+        }
+
+        public Color[] GetDatas()
+        {
+            return GetDatas(new Rect(0, 0, m_renderTexture.width, m_renderTexture.height));
+        }
+
+        Rect RemapTerrainRectToLocalRect(in Rect worldRect)
+        {
+            Rect locRect = new Rect();
+            locRect.position = worldRect.position - Position;
+            locRect.size = worldRect.size / Resolution;
+            return locRect;
+        }
+        
+        public Color[] GetDatasInWorld(in Rect worldRect)
+        {
+            
+            return GetDatas(RemapTerrainRectToLocalRect(worldRect));
         }
 
         private void GenerateRenderTexture()
@@ -167,8 +196,8 @@ namespace InfluenceMapPackage
             m_renderTexture.Create();
             
 #if UNITY_EDITOR
-                if (m_drawDebug)
-                    m_terrain.materialTemplate.SetTexture(s_shaderPropertyTexture, m_renderTexture);
+            if (m_drawDebug)
+                m_terrain.materialTemplate.SetTexture(s_shaderPropertyTexture, m_renderTexture);
 #endif
         }
         
@@ -183,7 +212,7 @@ namespace InfluenceMapPackage
 
             TerrainData terrainData = m_terrain.terrainData;
             Vector2 terrainSize = new Vector2(terrainData.size.x, terrainData.size.z);
-            Vector2 terrainMinPos = new Vector2(m_terrain.GetPosition().x, m_terrain.GetPosition().z);
+            Vector2 terrainMinPos = Position;
             Vector2 terrainMaxPos = terrainMinPos + terrainSize;
             
             foreach (IInfluencer influencer in m_influencers)
