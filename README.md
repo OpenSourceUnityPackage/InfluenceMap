@@ -24,6 +24,9 @@
 This package allow to create influence map for terrain.
 Influence map allow give informaiton about control of a specific zone. It can be usefull for an AI to evaluation interrest point.
 
+![Capture d’écran 2022-04-18 164107](https://user-images.githubusercontent.com/55276408/163825439-1920c63c-7f15-494e-b5c1-3e6afeee06f6.png)
+
+
 ## How it work ?
 Influence map is process thanks to compute shader.
 TerrainInfluenceMap script need to be assigned to game object with terrain and will cull all entities inside.
