@@ -213,7 +213,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e6736dc8a011b47802b7438ce3732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 963c73b5e75feef479e6ea76a4ef0d93, type: 3}
+  shader: {fileID: 7200000, guid: ee0b846ebcd601445a8da9e9303f5006, type: 3}
   resolution: 6
   lowPrescision: 1
   m_drawDebug: 0
@@ -229,7 +229,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e6736dc8a011b47802b7438ce3732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 963c73b5e75feef479e6ea76a4ef0d93, type: 3}
+  shader: {fileID: 7200000, guid: ee0b846ebcd601445a8da9e9303f5006, type: 3}
   resolution: 6
   lowPrescision: 1
   m_drawDebug: 0
@@ -266,6 +266,7 @@ MonoBehaviour:
   terrains: []
   InfluenceMapTeam1: []
   InfluenceMapTeam2: []
+  shader: {fileID: 7200000, guid: 1de01a5a41c4c0d49bcb850e39ffbac8, type: 3}
   m_drawDebug: 0
   renderTexture: []
 --- !u!4 &377053535
@@ -344,7 +345,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e6736dc8a011b47802b7438ce3732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 963c73b5e75feef479e6ea76a4ef0d93, type: 3}
+  shader: {fileID: 7200000, guid: ee0b846ebcd601445a8da9e9303f5006, type: 3}
   resolution: 6
   lowPrescision: 1
   m_drawDebug: 0
@@ -418,7 +419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e6736dc8a011b47802b7438ce3732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 963c73b5e75feef479e6ea76a4ef0d93, type: 3}
+  shader: {fileID: 7200000, guid: ee0b846ebcd601445a8da9e9303f5006, type: 3}
   resolution: 6
   lowPrescision: 1
   m_drawDebug: 0
@@ -620,7 +621,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e6736dc8a011b47802b7438ce3732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 963c73b5e75feef479e6ea76a4ef0d93, type: 3}
+  shader: {fileID: 7200000, guid: ee0b846ebcd601445a8da9e9303f5006, type: 3}
   resolution: 6
   lowPrescision: 1
   m_drawDebug: 0
@@ -636,7 +637,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 16e6736dc8a011b47802b7438ce3732c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  shader: {fileID: 7200000, guid: 963c73b5e75feef479e6ea76a4ef0d93, type: 3}
+  shader: {fileID: 7200000, guid: ee0b846ebcd601445a8da9e9303f5006, type: 3}
   resolution: 6
   lowPrescision: 1
   m_drawDebug: 0

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using InfluenceMapPackage;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public enum ETeam : int
 {
@@ -22,10 +23,13 @@ public class GameManager : MonoBehaviour
 
     private Selection m_selection = new Selection();
 
-#if UNITY_EDITOR
-    private static readonly int s_shaderPropertyInfluenceMap1 = Shader.PropertyToID("_InfluenceMap1");
-    private static readonly int s_shaderPropertyInfluenceMap2 = Shader.PropertyToID("_InfluenceMap2");
+    private ComputeShader m_previousShader; // Allow to update merger
+    public ComputeShader shader;
+    private static readonly int s_shaderPropertyTexture = Shader.PropertyToID("_Texture");
+    private static int s_kernelIndex;
+    private MapMerger m_merger;
 
+#if UNITY_EDITOR
     [SerializeField] private bool m_drawDebug = false;
 
     private bool m_prevDrawDebug = false;
@@ -62,6 +66,9 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        m_previousShader = shader;
+        m_merger = new MapMerger(shader);
+
         for (var index = 0; index < m_teamsUnits.Length; index++)
         {
             m_teamsUnits[index] = new List<Unit>();
@@ -111,7 +118,7 @@ public class GameManager : MonoBehaviour
                 {
                     var terrain = terrains[index];
                     m_prevTerrainMaterial[index] = terrain.materialTemplate;
-                    terrain.materialTemplate = new Material(Shader.Find("InfluenceMapMerger"));
+                    terrain.materialTemplate = new Material(Shader.Find("Debug/DebugInfluenceMap"));
                 }
             }
             else
@@ -123,14 +130,18 @@ public class GameManager : MonoBehaviour
             }
         }
 
+        if (shader != m_previousShader)
+        {
+            m_merger.SetShader(shader);
+            m_previousShader = shader;
+        }
+
         if (m_drawDebug)
         {
             for (var index = 0; index < terrains.Length; index++)
             {
-                terrains[index].materialTemplate.SetTexture(s_shaderPropertyInfluenceMap1,
-                    InfluenceMapTeam1[index].RenderTexture);
-                terrains[index].materialTemplate.SetTexture(s_shaderPropertyInfluenceMap2,
-                    InfluenceMapTeam2[index].RenderTexture);
+                RenderTexture texture = m_merger.Process(InfluenceMapTeam1[index].RenderTexture, InfluenceMapTeam2[index].RenderTexture);
+                terrains[index].materialTemplate.SetTexture(s_shaderPropertyTexture, texture);
             }
         }
 #endif
@@ -219,8 +230,6 @@ public class GameManager : MonoBehaviour
         return rst;
     }
 
-    public List<RenderTexture> renderTexture;
-    
     Vector2 GetSelectionStat(Vector2 pos1, Vector2 pos2)
     {
         Vector2 rst = Vector2.zero;
@@ -232,12 +241,8 @@ public class GameManager : MonoBehaviour
         Vector2 minMousePos = new Vector2(Math.Min(mousePos1.x, mousePos2.x), Math.Min(mousePos1.z, mousePos2.z));
         Vector2 maxMousePos = new Vector2(Math.Max(mousePos1.x, mousePos2.x), Math.Max(mousePos1.z, mousePos2.z));
 
-        renderTexture.Clear();
         for (var index = 0; index < terrains.Length; index++)
         {
-            renderTexture.Add(InfluenceMapTeam1[index].RenderTexture);
-            renderTexture.Add(InfluenceMapTeam2[index].RenderTexture);
-                
             int resolution = InfluenceMapTeam1[index].Resolution;
             Vector3 terrainPos = terrains[index].GetPosition();
             Vector2 terrain2DPos = new Vector2(terrainPos.x, terrainPos.z);

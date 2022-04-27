@@ -1,0 +1,12 @@
+Texture2D<float> _Map1;
+Texture2D<float> _Map2;
+
+RWTexture2D<float> _TextureOut;
+
+#pragma kernel main
+   
+[numthreads(8,8,1)]                            
+void main (uint2 id : SV_DispatchThreadID)
+{
+    _TextureOut[id.xy] = min(_Map1[id.xy] + _Map2[id.xy], 1.f);
+}

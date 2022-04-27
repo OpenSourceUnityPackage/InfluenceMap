@@ -178,7 +178,6 @@ namespace InfluenceMapPackage
         
         public Color[] GetDatasInWorld(in Rect worldRect)
         {
-            
             return GetDatas(RemapTerrainRectToLocalRect(worldRect));
         }
 
