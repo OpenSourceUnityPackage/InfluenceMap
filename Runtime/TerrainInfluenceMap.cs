@@ -1,11 +1,12 @@
-using System;
 using System.Collections.Generic;
 using Unity.Profiling;
-using UnityEditor;
-using UnityEditor.VersionControl;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.Rendering;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace InfluenceMapPackage
 {
