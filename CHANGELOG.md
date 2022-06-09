@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/OpenSourceUnityPackage/InfluenceMap/compare/1.2.0...1.2.1) (2022-06-09)
+
+
+### Bug Fixes
+
+* build fail because of editor using ([d6d7116](https://github.com/OpenSourceUnityPackage/InfluenceMap/commit/d6d71160290503e532c245c27a40868bbbe23cee))
+
 # [1.2.0](https://github.com/OpenSourceUnityPackage/InfluenceMap/compare/1.1.0...1.2.0) (2022-04-27)
 
 
